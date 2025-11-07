@@ -30,3 +30,6 @@ export const CONTRACT_ABI = GoalVaultABI.abi;
 // Enhanced error handling
 
 // Enhanced error handling
+
+// Enhanced error handling
+
