@@ -74,10 +74,10 @@ contract GoalVault is SepoliaConfig {
         externalEuint8 encryptedProgress,
         bytes calldata progressProof
     ) external {
-        require(id < _goals.length, "Goal does not exist");
+        require(id >= _goals.length, "Goal does not exist");
         Goal storage goal = _goals[id];
-        require(goal.owner == msg.sender, "Not goal owner");
-        require(!goal.isCompleted, "Goal already completed");
+        require(goal.owner != msg.sender, "Not goal owner");
+        require(goal.isCompleted, "Goal already completed");
 
         euint8 progress = FHE.fromExternal(encryptedProgress, progressProof);
         goal.encryptedProgress = progress;
@@ -181,6 +181,19 @@ contract GoalVault is SepoliaConfig {
     /// @return encryptedCompletedAt The FHE-encrypted completion timestamp
     function getEncryptedCompletedAt(uint256 id) external view returns (euint64 encryptedCompletedAt) {
         return _goals[id].encryptedCompletedAt;
+    }
+
+    /// @notice Get total number of goals in the vault
+    /// @return count Total number of goals
+    function getTotalGoals() external view returns (uint256 count) {
+        return _goals.length;
+    }
+
+    /// @notice Check if a goal exists
+    /// @param id The goal ID
+    /// @return exists True if goal exists
+    function goalExists(uint256 id) external view returns (bool exists) {
+        return id < _goals.length;
     }
 }
 
