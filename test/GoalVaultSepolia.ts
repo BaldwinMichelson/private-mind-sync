@@ -8,7 +8,7 @@ type Signers = {
   alice: HardhatEthersSigner;
 };
 
-describe("GoalVaultSepolia Testnet Testnet", function () {
+describe("GoalVaultSepolia Testnet Testnet Testnet", function () {
   let signers: Signers;
   let goalVaultContract: GoalVault;
   let goalVaultContractAddress: string;
@@ -21,7 +21,7 @@ describe("GoalVaultSepolia Testnet Testnet", function () {
 
   before(async function () {
     if (fhevm.isMock) {
-      console.warn(`This hardhat test suite can only run on Sepolia Testnet Testnet Testnet`);
+      console.warn(`This hardhat test suite can only run on Sepolia Testnet Testnet Testnet Testnet`);
       this.skip();
     }
 
@@ -30,7 +30,7 @@ describe("GoalVaultSepolia Testnet Testnet", function () {
       goalVaultContractAddress = GoalVaultDeployment.address;
       goalVaultContract = await ethers.getContractAt("GoalVault", GoalVaultDeployment.address);
     } catch (e) {
-      (e as Error).message += ". Call 'npx hardhat deploy --network Sepolia Testnet Testnet'";
+      (e as Error).message += ". Call 'npx hardhat deploy --network Sepolia Testnet Testnet Testnet'";
       throw e;
     }
 
@@ -43,14 +43,14 @@ describe("GoalVaultSepolia Testnet Testnet", function () {
     steps = 0;
   });
 
-  it("should create a goal and update progress on Sepolia Testnet Testnet", async function () {
+  it("should create a goal and update progress on Sepolia Testnet Testnet Testnet", async function () {
     steps = 15;
 
     this.timeout(4 * 60000);
 
     progress("Preparing test data...");
-    const title = "Sepolia Testnet Testnet Test Goal";
-    const description = "Test goal created on Sepolia Testnet Testnet";
+    const title = "Sepolia Testnet Testnet Testnet Test Goal";
+    const description = "Test goal created on Sepolia Testnet Testnet Testnet";
     const encryptedDescription = ethers.toUtf8Bytes(description);
     const deadline = BigInt(Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60);
     const priority = 3;
@@ -132,4 +132,5 @@ describe("GoalVaultSepolia Testnet Testnet", function () {
     expect(clearProgressAfter).to.eq(newProgress);
   });
 });
+
 
