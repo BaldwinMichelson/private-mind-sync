@@ -1,5 +1,5 @@
 import { Lock } from "lucide-react";
-import mindvaultLogo from "@/assets/mindvault-logo.png";
+import diaryVaultLogo from "@/assets/diaryvault-logo.png";
 
 const Header = () => {
   return (
@@ -7,8 +7,8 @@ const Header = () => {
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <img src={mindvaultLogo} alt="MindVault" className="w-10 h-10" />
-            <h1 className="text-xl font-bold glow-text">MindVault</h1>
+            <img src={diaryVaultLogo} alt="DiaryVault" className="w-10 h-10" />
+            <h1 className="text-xl font-bold glow-text">DiaryVault</h1>
           </div>
           <div className="flex items-center gap-2">
             <Lock className="w-4 h-4 text-success" />

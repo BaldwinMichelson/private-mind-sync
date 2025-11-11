@@ -8,61 +8,58 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 222 47% 5%;
-    --foreground: 210 40% 98%;
+    --background: 28 25% 7%;
+    --foreground: 40 20% 95%;
 
-    --card: 222 47% 8%;
-    --card-foreground: 210 40% 98%;
+    --card: 30 20% 12%;
+    --card-foreground: 40 20% 95%;
 
-    --popover: 222 47% 8%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 30 20% 12%;
+    --popover-foreground: 40 20% 95%;
 
-    --primary: 193 100% 50%;
-    --primary-foreground: 222 47% 5%;
+    --primary: 45 80% 60%;
+    --primary-foreground: 28 25% 7%;
 
-    --secondary: 217 33% 17%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 265 40% 35%;
+    --secondary-foreground: 40 20% 95%;
 
-    --muted: 217 33% 17%;
-    --muted-foreground: 215 20% 65%;
+    --muted: 30 15% 20%;
+    --muted-foreground: 40 10% 60%;
 
-    --accent: 193 100% 50%;
-    --accent-foreground: 222 47% 5%;
+    --accent: 45 80% 60%;
+    --accent-foreground: 28 25% 7%;
 
     --destructive: 0 84% 60%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 40 20% 95%;
 
-    --border: 217 33% 17%;
-    --input: 217 33% 17%;
-    --ring: 193 100% 50%;
+    --border: 30 15% 20%;
+    --input: 30 15% 20%;
+    --ring: 45 80% 60%;
 
     --radius: 0.75rem;
 
     --success: 142 76% 36%;
-    --success-foreground: 210 40% 98%;
+    --success-foreground: 40 20% 95%;
 
-    --cyber-blue: 193 100% 50%;
-    --cyber-cyan: 180 100% 50%;
-    --cyber-glow: 193 100% 70%;
+    --gold: 45 80% 60%;
+    --gold-glow: 45 80% 75%;
+    --purple: 265 40% 35%;
+    --purple-dark: 265 50% 25%;
 
-    --shimmer-1: 193 100% 50%;
-    --shimmer-2: 180 100% 50%;
-    --shimmer-3: 193 100% 70%;
-
-    --gradient-cyber: linear-gradient(135deg, hsl(193 100% 50% / 0.2), hsl(180 100% 50% / 0.1));
+    --gradient-elegant: linear-gradient(135deg, hsl(45 80% 60% / 0.1), hsl(265 40% 35% / 0.1));
     --gradient-shimmer: linear-gradient(90deg, 
-      hsl(193 100% 50% / 0) 0%, 
-      hsl(193 100% 50% / 0.3) 50%, 
-      hsl(193 100% 50% / 0) 100%);
+      hsl(45 80% 60% / 0) 0%, 
+      hsl(45 80% 60% / 0.2) 50%, 
+      hsl(45 80% 60% / 0) 100%);
 
-    --sidebar-background: 222 47% 5%;
-    --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 193 100% 50%;
-    --sidebar-primary-foreground: 222 47% 5%;
-    --sidebar-accent: 217 33% 17%;
-    --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: 217 33% 17%;
-    --sidebar-ring: 193 100% 50%;
+    --sidebar-background: 28 25% 7%;
+    --sidebar-foreground: 40 20% 95%;
+    --sidebar-primary: 45 80% 60%;
+    --sidebar-primary-foreground: 28 25% 7%;
+    --sidebar-accent: 30 15% 20%;
+    --sidebar-accent-foreground: 40 20% 95%;
+    --sidebar-border: 30 15% 20%;
+    --sidebar-ring: 45 80% 60%;
   }
 }
 
@@ -74,6 +71,10 @@ All colors MUST be HSL.
   body {
     @apply bg-background text-foreground;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Playfair Display', serif;
   }
 }
 
@@ -104,20 +105,27 @@ All colors MUST be HSL.
   }
 
   .glow-text {
-    text-shadow: 0 0 20px hsl(var(--cyber-glow) / 0.5);
+    text-shadow: 0 0 30px hsl(var(--gold-glow) / 0.4);
   }
 
-  .cyber-border {
-    border: 1px solid hsl(var(--cyber-blue) / 0.3);
-    box-shadow: 0 0 20px hsl(var(--cyber-blue) / 0.1);
+  .elegant-border {
+    border: 1px solid hsl(var(--gold) / 0.2);
+    box-shadow: 0 0 30px hsl(var(--gold) / 0.05);
   }
 
-  .circuit-pattern {
+  .paper-texture {
     background-image: 
-      linear-gradient(90deg, hsl(var(--border)) 1px, transparent 1px),
-      linear-gradient(hsl(var(--border)) 1px, transparent 1px);
-    background-size: 20px 20px;
-    opacity: 0.1;
+      radial-gradient(circle at 20% 50%, hsl(var(--gold) / 0.03) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, hsl(var(--purple) / 0.03) 0%, transparent 50%);
+  }
+
+  .notebook-lines {
+    background-image: repeating-linear-gradient(
+      transparent,
+      transparent 31px,
+      hsl(var(--border) / 0.3) 31px,
+      hsl(var(--border) / 0.3) 32px
+    );
   }
 }
 

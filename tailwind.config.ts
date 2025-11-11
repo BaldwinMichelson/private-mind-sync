@@ -61,10 +61,13 @@ export default {
           DEFAULT: "hsl(var(--success))",
           foreground: "hsl(var(--success-foreground))",
         },
-        cyber: {
-          blue: "hsl(var(--cyber-blue))",
-          cyan: "hsl(var(--cyber-cyan))",
-          glow: "hsl(var(--cyber-glow))",
+        gold: {
+          DEFAULT: "hsl(var(--gold))",
+          glow: "hsl(var(--gold-glow))",
+        },
+        purple: {
+          DEFAULT: "hsl(var(--purple))",
+          dark: "hsl(var(--purple-dark))",
         },
       },
       borderRadius: {
