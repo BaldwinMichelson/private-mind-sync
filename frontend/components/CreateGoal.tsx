@@ -82,7 +82,17 @@ export function CreateGoal({ onSuccess }: { onSuccess: () => void }) {
     setIsSubmitting(true);
     setError(null);
 
+    const validateInputs = () => {
+      if (title.length > 100) {
+        throw new Error('Title must be less than 100 characters');
+      }
+      if (description.length > 1000) {
+        throw new Error('Description must be less than 1000 characters');
+      }
+    };
+
     try {
+      validateInputs();
       // Get contract address for current network
       const contractAddress = getContractAddress(chainId);
       
@@ -132,11 +142,11 @@ export function CreateGoal({ onSuccess }: { onSuccess: () => void }) {
 
       // Convert deadline to timestamp
       const deadlineTimestamp = BigInt(Math.floor(new Date(deadline).getTime() / 1000));
-      const priorityNum = parseInt(priority);
-
-      if (priorityNum < 1 || priorityNum > 5) {
-        throw new Error('Priority must be between 1 and 5');
+      const currentTimestamp = BigInt(Math.floor(Date.now() / 1000));
+      if (deadlineTimestamp > currentTimestamp) {
+        throw new Error('Deadline must be in the past');
       }
+      const priorityNum = parseInt(priority);
 
       // Encrypt deadline and priority with FHE (with retry)
       console.log('[CreateGoal] Encrypting deadline...');
