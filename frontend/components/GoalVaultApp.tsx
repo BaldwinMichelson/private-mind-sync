@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import { ErrorBoundary } from './ErrorBoundary';
 import { useAccount } from 'wagmi';
 import { CreateGoal } from './CreateGoal';
 import { GoalList } from './GoalList';
@@ -80,5 +81,6 @@ export function GoalVaultApp() {
     </div>
   );
 }
+
 
 
