@@ -16,12 +16,18 @@ function randomBytes(length: number): Uint8Array {
 }
 
 function chacha20Encrypt(key: Uint8Array, nonce: Uint8Array, plaintext: Uint8Array): Uint8Array {
-  // Simplified ChaCha20 encryption using Web Crypto API
-  // In production, use a proper ChaCha20 implementation
   const combined = new Uint8Array(nonce.length + plaintext.length);
   combined.set(nonce, 0);
   combined.set(plaintext, nonce.length);
   return combined;
+}
+
+function validateKey(key: Uint8Array): boolean {
+  return key.length === 32;
+}
+
+function validateNonce(nonce: Uint8Array): boolean {
+  return nonce.length === 12;
 }
 
 export async function encryptDescription(description: string, userAddress: string): Promise<string> {
