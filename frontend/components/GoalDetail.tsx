@@ -93,83 +93,75 @@ export function GoalDetail({
     if (!address || !signerPromise || !instance || !goalData) return;
 
     setDecrypting(true);
-    try {
-      const signer = await signerPromise;
-      const contractAddress = getContractAddress(chainId);
-      const contract = new Contract(contractAddress, CONTRACT_ABI, signer);
+    const signer = await signerPromise;
+    const contractAddress = getContractAddress(chainId);
+    const contract = new Contract(contractAddress, CONTRACT_ABI, signer);
 
-      // Decrypt deadline, priority, progress
-      const encDeadline = await contract.getEncryptedDeadline(goalId);
-      const encPriority = await contract.getEncryptedPriority(goalId);
-      const encProgress = await contract.getEncryptedProgress(goalId);
+    const keypair = instance.generateKeypair();
+    const startTimeStamp = Math.floor(Date.now() / 1000).toString();
+    const durationDays = '10';
+    const contractAddresses = [contractAddress];
 
-      // Prepare decryption using userDecrypt
-      const keypair = instance.generateKeypair();
-      const startTimeStamp = Math.floor(Date.now() / 1000).toString();
-      const durationDays = '10';
-      const contractAddresses = [contractAddress];
+    const encDeadline = await contract.getEncryptedDeadline(goalId);
+    const encPriority = await contract.getEncryptedPriority(goalId);
+    const encProgress = await contract.getEncryptedProgress(goalId);
 
-      const eip712 = instance.createEIP712(
-        keypair.publicKey,
-        contractAddresses,
-        startTimeStamp,
-        durationDays
-      );
+    const eip712 = instance.createEIP712(
+      keypair.publicKey,
+      contractAddresses,
+      startTimeStamp,
+      durationDays
+    );
 
-      const signature = await signer.signTypedData(
-        eip712.domain,
-        { UserDecryptRequestVerification: eip712.types.UserDecryptRequestVerification },
-        eip712.message
-      );
+    const signature = await signer.signTypedData(
+      eip712.domain,
+      { UserDecryptRequestVerification: eip712.types.UserDecryptRequestVerification },
+      eip712.message
+    );
 
-      let encCompletedAt: string | null = null;
-      if (goalData.isCompleted) {
-        encCompletedAt = await contract.getEncryptedCompletedAt(goalId);
-      }
-
-      const handleContractPairs = [
-        { handle: encDeadline, contractAddress: contractAddress },
-        { handle: encPriority, contractAddress: contractAddress },
-        { handle: encProgress, contractAddress: contractAddress },
-      ];
-
-      if (encCompletedAt) {
-        handleContractPairs.push({ handle: encCompletedAt, contractAddress: contractAddress });
-      }
-
-      const result = await instance.userDecrypt(
-        handleContractPairs,
-        keypair.privateKey,
-        keypair.publicKey,
-        signature.replace('0x', ''),
-        contractAddresses,
-        address,
-        startTimeStamp,
-        durationDays
-      );
-
-      const deadline = BigInt(result[encDeadline] || '0');
-      const priority = Number(result[encPriority] || '0');
-      const progress = Number(result[encProgress] || '0');
-
-      let completedAt: bigint | null = null;
-      if (encCompletedAt && result[encCompletedAt]) {
-        completedAt = BigInt(result[encCompletedAt]);
-      }
-
-      setGoalData({
-        ...goalData,
-        deadline,
-        priority,
-        progress,
-        completedAt,
-      });
-    } catch (err) {
-      console.error('Failed to decrypt fields:', err);
-      alert('Failed to decrypt. Please try again.');
-    } finally {
-      setDecrypting(false);
+    let encCompletedAt: string | null = null;
+    if (goalData.isCompleted) {
+      encCompletedAt = await contract.getEncryptedCompletedAt(goalId);
     }
+
+    const handleContractPairs = [
+      { handle: encDeadline, contractAddress: contractAddress },
+      { handle: encPriority, contractAddress: contractAddress },
+      { handle: encProgress, contractAddress: contractAddress },
+    ];
+
+    if (encCompletedAt) {
+      handleContractPairs.push({ handle: encCompletedAt, contractAddress: contractAddress });
+    }
+
+    const result = await instance.userDecrypt(
+      handleContractPairs,
+      keypair.privateKey,
+      keypair.publicKey,
+      signature.replace('0x', ''),
+      contractAddresses,
+      address,
+      startTimeStamp,
+      durationDays
+    );
+
+    const deadline = BigInt(result[encDeadline] || '0');
+    const priority = Number(result[encPriority] || '0');
+    const progress = Number(result[encProgress] || '0');
+
+    let completedAt: bigint | null = null;
+    if (encCompletedAt && result[encCompletedAt]) {
+      completedAt = BigInt(result[encCompletedAt]);
+    }
+
+    setGoalData({
+      ...goalData,
+      deadline,
+      priority,
+      progress,
+      completedAt,
+    });
+    setDecrypting(false);
   };
 
   const updateProgress = async () => {
