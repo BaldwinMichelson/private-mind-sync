@@ -62,6 +62,16 @@ contract GoalVault is SepoliaConfig {
         uint256 id = _goals.length - 1;
         _goalsOf[msg.sender].push(id);
 
+        // ACL: allow contract and user to access encrypted fields
+        FHE.allowThis(_goals[id].encryptedDeadline);
+        FHE.allow(_goals[id].encryptedDeadline, msg.sender);
+        FHE.allowThis(_goals[id].encryptedPriority);
+        FHE.allow(_goals[id].encryptedPriority, msg.sender);
+        FHE.allowThis(_goals[id].encryptedProgress);
+        FHE.allow(_goals[id].encryptedProgress, msg.sender);
+        FHE.allowThis(_goals[id].encryptedCompletedAt);
+        FHE.allow(_goals[id].encryptedCompletedAt, msg.sender);
+
         emit GoalCreated(id, msg.sender, title, goal.createdAt);
     }
 
