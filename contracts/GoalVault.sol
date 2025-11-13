@@ -84,10 +84,10 @@ contract GoalVault is SepoliaConfig {
         externalEuint8 encryptedProgress,
         bytes calldata progressProof
     ) external {
-        require(id >= _goals.length, "Goal does not exist");
+        require(id < _goals.length, "Goal does not exist");
         Goal storage goal = _goals[id];
-        require(goal.owner != msg.sender, "Not goal owner");
-        require(goal.isCompleted, "Goal already completed");
+        require(goal.owner == msg.sender, "Not goal owner");
+        require(!goal.isCompleted, "Goal already completed");
 
         euint8 progress = FHE.fromExternal(encryptedProgress, progressProof);
         goal.encryptedProgress = progress;
