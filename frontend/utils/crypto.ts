@@ -15,11 +15,30 @@ function randomBytes(length: number): Uint8Array {
   return bytes;
 }
 
-function chacha20Encrypt(key: Uint8Array, nonce: Uint8Array, plaintext: Uint8Array): Uint8Array {
-  const combined = new Uint8Array(nonce.length + plaintext.length);
-  combined.set(nonce, 0);
-  combined.set(plaintext, nonce.length);
-  return combined;
+async function chacha20Encrypt(key: Uint8Array, nonce: Uint8Array, plaintext: Uint8Array): Promise<Uint8Array> {
+  const cryptoKey = await crypto.subtle.importKey(
+    'raw',
+    key,
+    { name: 'AES-GCM' },
+    false,
+    ['encrypt']
+  );
+  
+  const encrypted = await crypto.subtle.encrypt(
+    {
+      name: 'AES-GCM',
+      iv: nonce,
+      tagLength: 128,
+    },
+    cryptoKey,
+    plaintext
+  );
+  
+  const encryptedArray = new Uint8Array(encrypted);
+  const result = new Uint8Array(nonce.length + encryptedArray.length);
+  result.set(nonce, 0);
+  result.set(encryptedArray, nonce.length);
+  return result;
 }
 
 function validateKey(key: Uint8Array): boolean {
@@ -34,7 +53,7 @@ export async function encryptDescription(description: string, userAddress: strin
   const key = deriveKeyFromAddress(userAddress);
   const nonce = randomBytes(12);
   const plaintext = new TextEncoder().encode(description);
-  const encrypted = chacha20Encrypt(key, nonce, plaintext);
+  const encrypted = await chacha20Encrypt(key, nonce, plaintext);
   return `0x${Array.from(encrypted).map(b => b.toString(16).padStart(2, '0')).join('')}`;
 }
 
@@ -45,7 +64,25 @@ export async function decryptDescription(encryptedHex: string, userAddress: stri
   );
   const nonce = encrypted.slice(0, 12);
   const ciphertext = encrypted.slice(12);
-  // Simplified decryption - in production use proper ChaCha20
-  return new TextDecoder().decode(ciphertext);
+  
+  const cryptoKey = await crypto.subtle.importKey(
+    'raw',
+    key,
+    { name: 'AES-GCM' },
+    false,
+    ['decrypt']
+  );
+  
+  const decrypted = await crypto.subtle.decrypt(
+    {
+      name: 'AES-GCM',
+      iv: nonce,
+      tagLength: 128,
+    },
+    cryptoKey,
+    ciphertext
+  );
+  
+  return new TextDecoder().decode(decrypted);
 }
 
