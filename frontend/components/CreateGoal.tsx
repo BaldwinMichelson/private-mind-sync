@@ -143,10 +143,13 @@ export function CreateGoal({ onSuccess }: { onSuccess: () => void }) {
       // Convert deadline to timestamp
       const deadlineTimestamp = BigInt(Math.floor(new Date(deadline).getTime() / 1000));
       const currentTimestamp = BigInt(Math.floor(Date.now() / 1000));
-      if (deadlineTimestamp > currentTimestamp) {
-        throw new Error('Deadline must be in the past');
+      if (deadlineTimestamp < currentTimestamp) {
+        throw new Error('Deadline must be in the future');
       }
       const priorityNum = parseInt(priority);
+      if (priorityNum < 1 || priorityNum > 5) {
+        throw new Error('Priority must be between 1 and 5');
+      }
 
       // Encrypt deadline and priority with FHE (with retry)
       console.log('[CreateGoal] Encrypting deadline...');
