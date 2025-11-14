@@ -8,6 +8,17 @@ import {SepoliaConfig} from "@fhevm/solidity/config/ZamaConfig.sol";
 /// @notice Stores user goals with encrypted details, deadlines, priorities, and progress
 /// @dev Uses client-side encryption for descriptions and FHE for numeric values
 contract GoalVault is SepoliaConfig {
+    modifier onlyGoalOwner(uint256 id) {
+        require(id < _goals.length, "Goal does not exist");
+        require(_goals[id].owner == msg.sender, "Not goal owner");
+        _;
+    }
+
+    modifier goalNotCompleted(uint256 id) {
+        require(!_goals[id].isCompleted, "Goal already completed");
+        _;
+    }
+
     struct Goal {
         address owner;
         string title; // Plaintext title for listing
@@ -83,11 +94,8 @@ contract GoalVault is SepoliaConfig {
         uint256 id,
         externalEuint8 encryptedProgress,
         bytes calldata progressProof
-    ) external {
-        require(id < _goals.length, "Goal does not exist");
+    ) external onlyGoalOwner(id) goalNotCompleted(id) {
         Goal storage goal = _goals[id];
-        require(goal.owner == msg.sender, "Not goal owner");
-        require(!goal.isCompleted, "Goal already completed");
 
         euint8 progress = FHE.fromExternal(encryptedProgress, progressProof);
         goal.encryptedProgress = progress;
@@ -107,11 +115,8 @@ contract GoalVault is SepoliaConfig {
         uint256 id,
         externalEuint64 encryptedCompletedAt,
         bytes calldata completedAtProof
-    ) external {
-        require(id < _goals.length, "Goal does not exist");
+    ) external onlyGoalOwner(id) goalNotCompleted(id) {
         Goal storage goal = _goals[id];
-        require(goal.owner == msg.sender, "Not goal owner");
-        require(!goal.isCompleted, "Goal already completed");
 
         euint64 completedAt = FHE.fromExternal(encryptedCompletedAt, completedAtProof);
         goal.encryptedCompletedAt = completedAt;
