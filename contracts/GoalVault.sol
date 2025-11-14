@@ -23,9 +23,9 @@ contract GoalVault is SepoliaConfig {
     Goal[] private _goals;
     mapping(address => uint256[]) private _goalsOf;
 
-    event GoalCreated(uint256 indexed id, address indexed owner, string title, uint64 createdAt);
-    event GoalProgressUpdated(uint256 indexed id, address indexed owner);
-    event GoalCompleted(uint256 indexed id, address indexed owner, uint64 completedAt);
+    event GoalCreated(uint256 indexed id, address indexed owner, string title, uint64 indexed createdAt);
+    event GoalProgressUpdated(uint256 indexed id, address indexed owner, uint64 indexed updatedAt);
+    event GoalCompleted(uint256 indexed id, address indexed owner, uint64 indexed completedAt);
 
     /// @notice Create a new goal
     /// @param title Plaintext title for listing
@@ -96,7 +96,7 @@ contract GoalVault is SepoliaConfig {
         FHE.allowThis(goal.encryptedProgress);
         FHE.allow(goal.encryptedProgress, msg.sender);
 
-        emit GoalProgressUpdated(id, msg.sender);
+        emit GoalProgressUpdated(id, msg.sender, uint64(block.timestamp));
     }
 
     /// @notice Mark goal as completed
