@@ -1,5 +1,25 @@
 import { keccak256, toUtf8Bytes } from 'ethers';
 
+const encryptionCache = new Map<string, { key: CryptoKey; timestamp: number }>();
+const CACHE_DURATION = 5 * 60 * 1000;
+
+async function getCachedKey(keyBytes: Uint8Array): Promise<CryptoKey> {
+  const keyStr = Array.from(keyBytes).join(',');
+  const cached = encryptionCache.get(keyStr);
+  if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
+    return cached.key;
+  }
+  const cryptoKey = await crypto.subtle.importKey(
+    'raw',
+    keyBytes,
+    { name: 'AES-GCM' },
+    false,
+    ['encrypt', 'decrypt']
+  );
+  encryptionCache.set(keyStr, { key: cryptoKey, timestamp: Date.now() });
+  return cryptoKey;
+}
+
 function deriveKeyFromAddress(addr: string): Uint8Array {
   const hash = keccak256(toUtf8Bytes(addr.toLowerCase()));
   const key = new Uint8Array(32);
@@ -16,13 +36,7 @@ function randomBytes(length: number): Uint8Array {
 }
 
 async function chacha20Encrypt(key: Uint8Array, nonce: Uint8Array, plaintext: Uint8Array): Promise<Uint8Array> {
-  const cryptoKey = await crypto.subtle.importKey(
-    'raw',
-    key,
-    { name: 'AES-GCM' },
-    false,
-    ['encrypt']
-  );
+  const cryptoKey = await getCachedKey(key);
   
   const encrypted = await crypto.subtle.encrypt(
     {
@@ -65,13 +79,7 @@ export async function decryptDescription(encryptedHex: string, userAddress: stri
   const nonce = encrypted.slice(0, 12);
   const ciphertext = encrypted.slice(12);
   
-  const cryptoKey = await crypto.subtle.importKey(
-    'raw',
-    key,
-    { name: 'AES-GCM' },
-    false,
-    ['decrypt']
-  );
+  const cryptoKey = await getCachedKey(key);
   
   const decrypted = await crypto.subtle.decrypt(
     {
