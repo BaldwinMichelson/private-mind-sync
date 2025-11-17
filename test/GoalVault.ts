@@ -39,6 +39,38 @@ describe("GoalVault", function () {
     await fhevm.initializeCLIApi();
   });
 
+  it("should reject invalid goal ID in updateProgress", async function () {
+    const invalidId = 999999;
+    const progress = 50;
+    const { encryptedProgress, progressProof } = await fhevm.encrypt8(progress, goalVaultContractAddress);
+    await expect(
+      goalVaultContract.updateProgress(invalidId, encryptedProgress, progressProof)
+    ).to.be.revertedWith("Goal does not exist");
+  });
+
+  it("should reject non-owner updateProgress", async function () {
+    const title = "Test Goal";
+    const encryptedDescription = ethers.toUtf8Bytes("Test description");
+    const deadline = BigInt(Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60);
+    const priority = 3;
+    const { encryptedDeadline, deadlineProof } = await fhevm.encrypt64(deadline, goalVaultContractAddress);
+    const { encryptedPriority, priorityProof } = await fhevm.encrypt8(priority, goalVaultContractAddress);
+    
+    await goalVaultContract.createGoal(
+      title,
+      encryptedDescription,
+      encryptedDeadline,
+      encryptedPriority,
+      deadlineProof,
+      priorityProof
+    );
+    
+    const { encryptedProgress, progressProof } = await fhevm.encrypt8(50, goalVaultContractAddress);
+    await expect(
+      goalVaultContract.connect(signers.bob).updateProgress(0, encryptedProgress, progressProof)
+    ).to.be.revertedWith("Not goal owner");
+  });
+
   it("should create a goal with encrypted data", async function () {
     const title = "Learn Solidity";
     const description = "Master Solidity programming";
