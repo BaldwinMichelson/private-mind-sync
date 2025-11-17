@@ -74,8 +74,20 @@ export function CreateGoal({ onSuccess }: { onSuccess: () => void }) {
       setError('Missing wallet or encryption instance');
       return;
     }
-    if (!title.trim() || !description.trim() || !deadline) {
-      setError('Please fill in all fields');
+    if (!title.trim()) {
+      setError('Please enter a goal title');
+      return;
+    }
+    if (!description.trim()) {
+      setError('Please enter a goal description');
+      return;
+    }
+    if (!deadline) {
+      setError('Please select a deadline');
+      return;
+    }
+    if (title.trim().length > 100) {
+      setError('Title must be less than 100 characters');
       return;
     }
 
