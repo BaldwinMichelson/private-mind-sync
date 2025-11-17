@@ -41,15 +41,21 @@ export function GoalList({ refreshTrigger }: { refreshTrigger: number }) {
       const goalIds = await contract.getGoalIdsByOwner(address);
 
       const goalsData: GoalMeta[] = [];
-      for (const id of goalIds) {
-        const meta = await contract.getGoalMeta(id);
-        goalsData.push({
-          id,
-          owner: meta[0],
-          title: meta[1],
-          createdAt: meta[2],
-          isCompleted: meta[3],
+      const batchSize = 10;
+      for (let i = 0; i < goalIds.length; i += batchSize) {
+        const batch = goalIds.slice(i, i + batchSize);
+        const batchPromises = batch.map(async (id: bigint) => {
+          const meta = await contract.getGoalMeta(id);
+          return {
+            id,
+            owner: meta[0],
+            title: meta[1],
+            createdAt: meta[2],
+            isCompleted: meta[3],
+          };
         });
+        const batchResults = await Promise.all(batchPromises);
+        goalsData.push(...batchResults);
       }
 
       setGoals(goalsData.sort((a, b) => Number(b.createdAt - a.createdAt)));
