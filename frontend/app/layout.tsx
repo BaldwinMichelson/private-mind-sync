@@ -23,27 +23,33 @@ export default async function RootLayout({
     <html lang="en">
       <body className="antialiased">
         <Providers>
-          <main className="flex flex-col max-w-screen-xl mx-auto pb-20 px-4 md:px-6">
-            <nav className="flex w-full h-fit py-6 md:py-8 justify-between items-center mb-4">
-              <div className="flex items-center gap-3">
-                <Image
-                  src="/goalvault-logo.svg"
-                  alt="GoalVault Logo"
-                  width={60}
-                  height={60}
-                  className="md:w-20 md:h-20"
-                />
-                <div>
-                  <h1 className="text-xl md:text-2xl font-bold" style={{ background: 'linear-gradient(135deg, #10b981 0%, #fbbf24 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-                    GoalVault
-                  </h1>
-                  <p className="text-xs md:text-sm text-gray-500">Encrypted goals with on-chain proofs</p>
+          <div className="flex flex-col h-screen overflow-hidden">
+            {/* Top Navigation Bar */}
+            <nav className="w-full bg-white border-b border-gray-200 flex-shrink-0 px-6 py-4">
+              <div className="flex justify-between items-center">
+                <div className="flex items-center gap-3">
+                  <Image
+                    src="/goalvault-logo.svg"
+                    alt="GoalVault Logo"
+                    width={48}
+                    height={48}
+                  />
+                  <div>
+                    <h1 className="text-xl font-bold" style={{ background: 'linear-gradient(135deg, #10b981 0%, #fbbf24 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                      GoalVault
+                    </h1>
+                    <p className="text-xs text-gray-500">Encrypted goals</p>
+                  </div>
                 </div>
+                <WalletConnect />
               </div>
-              <WalletConnect />
             </nav>
-            {children}
-          </main>
+
+            {/* Main Content Area */}
+            <div className="flex-1 flex overflow-hidden">
+              {children}
+            </div>
+          </div>
         </Providers>
       </body>
     </html>

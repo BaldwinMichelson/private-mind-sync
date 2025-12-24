@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAccount, useChainId } from 'wagmi';
 import { Contract } from 'ethers';
 import { useEthersSigner } from '../hooks/useEthersSigner';
@@ -40,13 +40,7 @@ export function GoalDetail({
   const [updating, setUpdating] = useState(false);
   const [completing, setCompleting] = useState(false);
 
-  useEffect(() => {
-    if (address && signerPromise) {
-      loadGoal();
-    }
-  }, [goalId, address, signerPromise, chainId]);
-
-  const loadGoal = async () => {
+  const loadGoal = useCallback(async () => {
     if (!address || !signerPromise) {
       console.log('Waiting for address or signer...', { address: !!address, signer: !!signerPromise });
       return;
@@ -87,7 +81,13 @@ export function GoalDetail({
     } finally {
       setLoading(false);
     }
-  };
+  }, [address, signerPromise, chainId, goalId]);
+
+  useEffect(() => {
+    if (address && signerPromise) {
+      loadGoal();
+    }
+  }, [goalId, address, signerPromise, chainId, loadGoal]);
 
   const decryptEncryptedFields = async () => {
     if (!address || !signerPromise || !instance || !goalData) return;
@@ -275,7 +275,7 @@ export function GoalDetail({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 w-full">
       <button
         onClick={onBack}
         className="btn mb-4"
@@ -284,7 +284,7 @@ export function GoalDetail({
         ← Back to Goals
       </button>
 
-      <div className="modern-card">
+      <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
         <h2 className="text-3xl font-bold mb-6" style={{ background: 'linear-gradient(135deg, #10b981 0%, #fbbf24 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
           {goalData.title}
         </h2>

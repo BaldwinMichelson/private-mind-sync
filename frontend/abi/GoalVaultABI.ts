@@ -21,7 +21,7 @@ export const GoalVaultABI = {
           "type": "address"
         },
         {
-          "indexed": false,
+          "indexed": true,
           "internalType": "uint64",
           "name": "completedAt",
           "type": "uint64"
@@ -52,7 +52,7 @@ export const GoalVaultABI = {
           "type": "string"
         },
         {
-          "indexed": false,
+          "indexed": true,
           "internalType": "uint64",
           "name": "createdAt",
           "type": "uint64"
@@ -75,6 +75,12 @@ export const GoalVaultABI = {
           "internalType": "address",
           "name": "owner",
           "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "uint64",
+          "name": "updatedAt",
+          "type": "uint64"
         }
       ],
       "name": "GoalProgressUpdated",
@@ -302,6 +308,38 @@ export const GoalVaultABI = {
         {
           "internalType": "bool",
           "name": "isCompleted",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getTotalGoals",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "count",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "id",
+          "type": "uint256"
+        }
+      ],
+      "name": "goalExists",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "exists",
           "type": "bool"
         }
       ],

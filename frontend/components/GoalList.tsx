@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo, useCallback, memo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, memo } from 'react';
 import { useGoals, useRefreshGoals, type GoalMeta } from '../hooks/useGoals';
 import { GoalDetail } from './GoalDetail';
 
@@ -108,7 +108,7 @@ export function GoalList({ refreshTrigger }: GoalListProps) {
 
   if (error) {
     return (
-      <div className="text-center py-8">
+      <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-8 text-center">
         <div className="text-red-600 mb-4">
           <p className="font-semibold">Failed to load goals</p>
           <p className="text-sm mt-2">
@@ -127,10 +127,12 @@ export function GoalList({ refreshTrigger }: GoalListProps) {
 
   if (goals.length === 0) {
     return (
-      <div className="empty-state">
-        <div className="empty-icon">🎯</div>
-        <div className="empty-title">No Goals Yet</div>
-        <div className="empty-subtitle">Create your first encrypted goal to get started!</div>
+      <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-8">
+        <div className="empty-state">
+          <div className="empty-icon">🎯</div>
+          <div className="empty-title">No Goals Yet</div>
+          <div className="empty-subtitle">Create your first encrypted goal to get started!</div>
+        </div>
       </div>
     );
   }
@@ -146,7 +148,7 @@ export function GoalList({ refreshTrigger }: GoalListProps) {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 w-full">
       {goals.map((goal) => (
         <GoalCard
           key={goal.id.toString()}
