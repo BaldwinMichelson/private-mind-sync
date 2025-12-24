@@ -1,15 +1,17 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useAccount, useChainId } from 'wagmi';
 import { Contract } from 'ethers';
 import { useEthersSigner } from '../hooks/useEthersSigner';
 import { useZamaInstance } from '../hooks/useZamaInstance';
+import { useRefreshGoals } from '../hooks/useGoals';
 import { getContractAddress, CONTRACT_ABI } from '../config/contracts';
 import { encryptDescription } from '../utils/crypto';
 import { ethers } from 'ethers';
 
 export function CreateGoal({ onSuccess }: { onSuccess: () => void }) {
+  const refreshGoals = useRefreshGoals();
   const { address } = useAccount();
   const chainId = useChainId();
   const { instance, isLoading: zamaLoading } = useZamaInstance();
@@ -197,6 +199,11 @@ export function CreateGoal({ onSuccess }: { onSuccess: () => void }) {
       setDescription('');
       setDeadline('');
       setPriority('3');
+      
+      // Refresh goals cache using React Query
+      refreshGoals();
+      
+      // Call parent's onSuccess callback
       onSuccess();
     } catch (err: any) {
       console.error('[CreateGoal] Error creating goal:', err);

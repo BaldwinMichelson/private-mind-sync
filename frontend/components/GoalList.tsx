@@ -1,76 +1,126 @@
 "use client";
 
-import { useState, useEffect } from 'react';
-import { useAccount, useChainId } from 'wagmi';
-import { Contract } from 'ethers';
-import { useEthersSigner } from '../hooks/useEthersSigner';
-import { useZamaInstance } from '../hooks/useZamaInstance';
-import { getContractAddress, CONTRACT_ABI } from '../config/contracts';
-import { decryptDescription } from '../utils/crypto';
+import { useState, useEffect, useMemo, useCallback, memo } from 'react';
+import { useGoals, useRefreshGoals, type GoalMeta } from '../hooks/useGoals';
 import { GoalDetail } from './GoalDetail';
 
-interface GoalMeta {
-  id: bigint;
-  owner: string;
-  title: string;
-  createdAt: bigint;
-  isCompleted: boolean;
+interface GoalListProps {
+  refreshTrigger: number;
 }
 
-export function GoalList({ refreshTrigger }: { refreshTrigger: number }) {
-  const { address } = useAccount();
-  const chainId = useChainId();
-  const signerPromise = useEthersSigner();
-  const { instance } = useZamaInstance();
-  const [goals, setGoals] = useState<GoalMeta[]>([]);
-  const [loading, setLoading] = useState(true);
+// Memoized GoalCard component to prevent unnecessary re-renders
+const GoalCard = memo(({ 
+  goal, 
+  onClick 
+}: { 
+  goal: GoalMeta; 
+  onClick: (id: bigint) => void;
+}) => {
+  const formattedDate = useMemo(
+    () => new Date(Number(goal.createdAt) * 1000).toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    }),
+    [goal.createdAt]
+  );
+
+  const handleClick = useCallback(() => {
+    onClick(goal.id);
+  }, [goal.id, onClick]);
+
+  return (
+    <div className="goal-card" onClick={handleClick}>
+      <div className="flex justify-between items-start">
+        <div className="flex-1">
+          <h3 className="font-bold text-xl mb-2 text-gray-900">{goal.title}</h3>
+          <p className="text-sm text-gray-600 flex items-center gap-2">
+            <span>📅</span>
+            <span>Created: {formattedDate}</span>
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          {goal.isCompleted ? (
+            <span className="badge badge-success">
+              ✓ Completed
+            </span>
+          ) : (
+            <span className="badge badge-info">
+              🔄 In Progress
+            </span>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+});
+
+GoalCard.displayName = 'GoalCard';
+
+// Loading skeleton component
+const GoalListSkeleton = memo(() => {
+  return (
+    <div className="space-y-4">
+      {[1, 2, 3].map((i) => (
+        <div key={i} className="goal-card animate-pulse">
+          <div className="flex justify-between items-start">
+            <div className="flex-1">
+              <div className="h-6 bg-gray-200 rounded w-3/4 mb-3"></div>
+              <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+            </div>
+            <div className="h-6 w-20 bg-gray-200 rounded"></div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+});
+
+GoalListSkeleton.displayName = 'GoalListSkeleton';
+
+export function GoalList({ refreshTrigger }: GoalListProps) {
+  const { data: goals = [], isLoading, error } = useGoals();
+  const refreshGoals = useRefreshGoals();
   const [selectedGoalId, setSelectedGoalId] = useState<bigint | null>(null);
 
+  // Refresh goals when refreshTrigger changes
   useEffect(() => {
-    loadGoals();
-  }, [address, refreshTrigger, chainId]);
-
-  const loadGoals = async () => {
-    if (!address || !signerPromise) return;
-
-    setLoading(true);
-    try {
-      const signer = await signerPromise;
-      const contractAddress = getContractAddress(chainId);
-      const contract = new Contract(contractAddress, CONTRACT_ABI, signer);
-      const goalIds = await contract.getGoalIdsByOwner(address);
-
-      const goalsData: GoalMeta[] = [];
-      const batchSize = 10;
-      for (let i = 0; i < goalIds.length; i += batchSize) {
-        const batch = goalIds.slice(i, i + batchSize);
-        const batchPromises = batch.map(async (id: bigint) => {
-          const meta = await contract.getGoalMeta(id);
-          return {
-            id,
-            owner: meta[0],
-            title: meta[1],
-            createdAt: meta[2],
-            isCompleted: meta[3],
-          };
-        });
-        const batchResults = await Promise.all(batchPromises);
-        goalsData.push(...batchResults);
-      }
-
-      setGoals(goalsData.sort((a, b) => Number(b.createdAt - a.createdAt)));
-    } catch (err) {
-      console.error('Failed to load goals:', err);
-    } finally {
-      setLoading(false);
+    if (refreshTrigger > 0) {
+      refreshGoals();
     }
-  };
+  }, [refreshTrigger, refreshGoals]);
 
-  if (loading) {
+  const handleGoalClick = useCallback((id: bigint) => {
+    setSelectedGoalId(id);
+  }, []);
+
+  const handleBack = useCallback(() => {
+    setSelectedGoalId(null);
+  }, []);
+
+  const handleUpdate = useCallback(() => {
+    refreshGoals();
+  }, [refreshGoals]);
+
+  if (isLoading) {
+    return <GoalListSkeleton />;
+  }
+
+  if (error) {
     return (
       <div className="text-center py-8">
-        <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mb-4"></div>
-        <p className="text-gray-600">Loading goals...</p>
+        <div className="text-red-600 mb-4">
+          <p className="font-semibold">Failed to load goals</p>
+          <p className="text-sm mt-2">
+            {error instanceof Error ? error.message : 'Unknown error occurred'}
+          </p>
+        </div>
+        <button
+          onClick={() => refreshGoals()}
+          className="btn btn-primary"
+        >
+          Retry
+        </button>
       </div>
     );
   }
@@ -89,8 +139,8 @@ export function GoalList({ refreshTrigger }: { refreshTrigger: number }) {
     return (
       <GoalDetail
         goalId={selectedGoalId}
-        onBack={() => setSelectedGoalId(null)}
-        onUpdate={loadGoals}
+        onBack={handleBack}
+        onUpdate={handleUpdate}
       />
     );
   }
@@ -98,36 +148,11 @@ export function GoalList({ refreshTrigger }: { refreshTrigger: number }) {
   return (
     <div className="space-y-4">
       {goals.map((goal) => (
-        <div
+        <GoalCard
           key={goal.id.toString()}
-          className="goal-card"
-          onClick={() => setSelectedGoalId(goal.id)}
-        >
-          <div className="flex justify-between items-start">
-            <div className="flex-1">
-              <h3 className="font-bold text-xl mb-2 text-gray-900">{goal.title}</h3>
-              <p className="text-sm text-gray-600 flex items-center gap-2">
-                <span>📅</span>
-                <span>Created: {new Date(Number(goal.createdAt) * 1000).toLocaleDateString('en-US', { 
-                  year: 'numeric', 
-                  month: 'long', 
-                  day: 'numeric' 
-                })}</span>
-              </p>
-            </div>
-            <div className="flex items-center gap-2">
-              {goal.isCompleted ? (
-                <span className="badge badge-success">
-                  ✓ Completed
-                </span>
-              ) : (
-                <span className="badge badge-info">
-                  🔄 In Progress
-                </span>
-              )}
-            </div>
-          </div>
-        </div>
+          goal={goal}
+          onClick={handleGoalClick}
+        />
       ))}
     </div>
   );

@@ -72,11 +72,9 @@ A blockchain-powered goal management dApp with Fully Homomorphic Encryption (FHE
 ```
 Private-Mind-Sync/
 ├── contracts/                    # Smart contract source files
-│   ├── GoalVault.sol            # Main goal management contract with hybrid encryption
-│   └── FHECounter.sol           # Example FHE counter contract
+│   └── GoalVault.sol            # Main goal management contract with hybrid encryption
 ├── deploy/                       # Deployment scripts
-│   ├── deploy_goalvault.ts      # GoalVault deployment script
-│   └── deploy.ts                # General deployment script
+│   └── deploy_goalvault.ts      # GoalVault deployment script
 ├── frontend/                     # Next.js frontend application
 │   ├── app/                     # Next.js app directory (pages, layouts)
 │   ├── components/              # React components
@@ -106,8 +104,7 @@ Private-Mind-Sync/
 │   └── public/                  # Static assets
 ├── test/                        # Test files
 │   ├── GoalVault.ts            # Local network tests
-│   ├── GoalVaultSepolia.ts     # Sepolia testnet tests
-│   └── FHECounter.ts           # FHE counter tests
+│   └── GoalVaultSepolia.ts     # Sepolia testnet tests
 ├── hardhat.config.ts           # Hardhat configuration
 ├── tsconfig.json               # TypeScript configuration
 └── package.json                # Dependencies and scripts
@@ -158,9 +155,6 @@ struct Goal {
 - **ACL permissions**: Contract and goal owner have access to encrypted fields
 - **Privacy guarantee**: Only the goal owner can decrypt and view their data
 
-### FHECounter.sol - Example Contract
-
-A simple counter contract demonstrating basic FHE operations on blockchain.
 
 ## 🔐 Encryption & Privacy Architecture
 

@@ -2,7 +2,7 @@
 
 The FHEVM React Template is an ultra-minimal React project for building and running an FHEVM-enabled dApp.
 It works alongside the [fhevm-hardhat-template](https://github.com/zama-ai/fhevm-hardhat-template)
-and provides a simple development frontend for interacting with the `FHECounter.sol` contract.
+and provides a simple development frontend for interacting with the `GoalVault.sol` contract.
 
 This template also illustrates how to run your FHEVM-dApp on both Sepolia as well as a local Hardhat Node (much faster).
 
@@ -69,7 +69,7 @@ npx hardhat node --verbose
 # Default RPC: http://127.0.0.1:8545  | chainId: 31337
 ```
 
-3. Deploy `FHECounter` to the local node:
+3. Deploy `GoalVault` to the local node:
 
 ```sh
 # still in packages/fhevm-hardhat-template
@@ -145,7 +145,6 @@ By following these steps, you can ensure that MetaMask syncs correctly with your
 
 - **`<root>/packages/site/fhevm`**: This folder contains the essential hooks needed to interact with FHEVM-enabled smart contracts. It is meant to be easily copied and integrated into any FHEVM + React project.
 
-- **`<root>/packages/site/hooks/useFHECounter.tsx`**: A simple React custom hook that demonstrates how to use the `useFhevm` hook in a basic use case, serving as an example of integration.
 
 ### Secondary Files/Folders
 

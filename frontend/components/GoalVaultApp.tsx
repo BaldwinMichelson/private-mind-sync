@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAccount } from 'wagmi';
 import { CreateGoal } from './CreateGoal';
 import { GoalList } from './GoalList';
 
 export function GoalVaultApp() {
-  const { address, isConnected } = useAccount();
+  const { isConnected } = useAccount();
   const [activeTab, setActiveTab] = useState<'create' | 'list'>('create');
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [mounted, setMounted] = useState(false);
@@ -14,6 +14,15 @@ export function GoalVaultApp() {
   // Avoid hydration mismatch by only checking connection status on client
   useEffect(() => {
     setMounted(true);
+  }, []);
+
+  const handleCreateSuccess = useCallback(() => {
+    setActiveTab('list');
+    setRefreshTrigger(prev => prev + 1);
+  }, []);
+
+  const handleTabChange = useCallback((tab: 'create' | 'list') => {
+    setActiveTab(tab);
   }, []);
 
   if (!mounted) {
@@ -50,13 +59,13 @@ export function GoalVaultApp() {
           <div className="tab-nav">
             <button
               className={`tab-button ${activeTab === 'create' ? 'active' : 'inactive'}`}
-              onClick={() => setActiveTab('create')}
+              onClick={() => handleTabChange('create')}
             >
               ✨ Create Goal
             </button>
             <button
               className={`tab-button ${activeTab === 'list' ? 'active' : 'inactive'}`}
-              onClick={() => setActiveTab('list')}
+              onClick={() => handleTabChange('list')}
             >
               📋 My Goals
             </button>
@@ -65,12 +74,7 @@ export function GoalVaultApp() {
 
         <div className="tab-content">
           {activeTab === 'create' && (
-            <CreateGoal
-              onSuccess={() => {
-                setActiveTab('list');
-                setRefreshTrigger(prev => prev + 1);
-              }}
-            />
+            <CreateGoal onSuccess={handleCreateSuccess} />
           )}
           {activeTab === 'list' && (
             <GoalList refreshTrigger={refreshTrigger} />

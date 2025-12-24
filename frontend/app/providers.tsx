@@ -9,7 +9,22 @@ import '@rainbow-me/rainbowkit/styles.css';
 import { config } from "@/config/wagmi";
 import { InMemoryStorageProvider } from "@/hooks/useInMemoryStorage";
 
-const queryClient = new QueryClient();
+// Optimize React Query configuration: add caching strategy, retry mechanism, etc.
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // Data considered fresh for 5 minutes, avoiding unnecessary refetches
+      gcTime: 10 * 60 * 1000, // Clear cache after 10 minutes (new property name in React Query v5, replaces cacheTime)
+      refetchOnWindowFocus: false, // Avoid unnecessary refetches when window gains focus
+      refetchOnReconnect: true, // Automatically refresh data on network reconnect
+      retry: 2, // Retry 2 times on failure
+      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000), // Exponential backoff, max 30 seconds
+    },
+    mutations: {
+      retry: 1, // Retry mutation once on failure
+    },
+  },
+});
 
 type Props = {
   children: ReactNode;
