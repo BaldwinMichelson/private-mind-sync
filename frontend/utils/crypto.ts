@@ -9,9 +9,11 @@ async function getCachedKey(keyBytes: Uint8Array): Promise<CryptoKey> {
   if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
     return cached.key;
   }
+  // Ensure keyBytes is a proper BufferSource by creating a new Uint8Array
+  const keyBuffer = new Uint8Array(keyBytes);
   const cryptoKey = await crypto.subtle.importKey(
     'raw',
-    keyBytes,
+    keyBuffer,
     { name: 'AES-GCM' },
     false,
     ['encrypt', 'decrypt']
